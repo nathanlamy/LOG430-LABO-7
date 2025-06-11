@@ -17,15 +17,17 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --omit=dev
 
+# Copier les fichiers nécessaires
 COPY --from=builder /app/dist ./dist
-COPY prisma ./prisma
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
+# Génère les fichiers Prisma client
+RUN npx prisma generate
 
 ENV NODE_ENV=production
 ENV PORT=3000
 
 EXPOSE 3000
-
-# Génère les fichiers Prisma client
-RUN npx prisma generate
 
 CMD ["node", "dist/main"]

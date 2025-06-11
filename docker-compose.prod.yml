@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14
+    container_name: postgres-magasin-api
+    environment:
+      POSTGRES_DB: magasin_api
+      POSTGRES_USER: magasin_user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - postgres_data_api:/var/lib/postgresql/data
+    networks:
+      - magasin_net
+
+  api:
+    image: nathanlamyy/magasin-backend:latest
+    container_name: magasin-api
+    depends_on:
+      - db
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://magasin_user:secret@db:5432/magasin_api
+    ports:
+      - "3000:3000"
+    networks:
+      - magasin_net
+
+volumes:
+  postgres_data_api:
+
+networks:
+  magasin_net:
