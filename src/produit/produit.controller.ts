@@ -1,4 +1,15 @@
-import { Controller, Get, Query, Patch, Body, Param, UsePipes, ValidationPipe, ParseIntPipe, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  Patch,
+  Body,
+  Param,
+  UsePipes,
+  ValidationPipe,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { ProduitService } from './produit.service';
 import { ApiTags, ApiQuery, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { ProduitDto } from './dto/produit.dto';
@@ -6,8 +17,8 @@ import { UpdateProduitDto } from './dto/update-produit.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 
 @ApiTags('Produits')
-//@ApiBearerAuth('jwt')
-//@UseGuards(JwtAuthGuard)
+@ApiBearerAuth('jwt')
+@UseGuards(JwtAuthGuard)
 @Controller('produits')
 export class ProduitController {
   constructor(private readonly produitService: ProduitService) {}
@@ -35,7 +46,7 @@ export class ProduitController {
   }
 
   @Patch(':id')
-    @ApiResponse({
+  @ApiResponse({
     status: 200,
     description: 'Produit mis à jour',
     type: ProduitDto,

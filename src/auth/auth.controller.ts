@@ -16,7 +16,7 @@ export class AuthController {
     content: {
       'application/json': {
         example: {
-          access_token: 'eyJhbGciOiJIUzI1NiIsInR...'
+          access_token: 'eyJhbGciOiJIUzI1NiIsInR...',
         },
       },
     },
@@ -34,8 +34,8 @@ export class AuthController {
       },
     },
   })
-  async login(@Body() body: LoginDto) {
-    const user = await this.authService.validateUser(body.username, body.password);
+  login(@Body() body: LoginDto) {
+    const user = this.authService.validateUser(body.username, body.password);
     if (!user) throw new UnauthorizedException('Identifiants invalides');
     return this.authService.login(user);
   }

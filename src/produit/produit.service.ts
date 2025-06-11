@@ -7,7 +7,11 @@ import { NotFoundException } from '@nestjs/common';
 export class ProduitService {
   constructor(private prisma: PrismaService) {}
 
-  async chercherProduits(params: { id?: number; nom?: string; categorie?: string }) {
+  async chercherProduits(params: {
+    id?: number;
+    nom?: string;
+    categorie?: string;
+  }) {
     const { id, nom, categorie } = params;
 
     if (id) {

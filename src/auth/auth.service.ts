@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 export class AuthService {
   constructor(private jwtService: JwtService) {}
 
-  async validateUser(username: string, password: string): Promise<any> {
+  validateUser(username: string, password: string) {
     // Fausse validation temporaire
     if (username === 'admin' && password === 'admin') {
       return { userId: 1, username: 'admin' };
@@ -13,7 +13,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any) {
+  login(user: { userId: number; username: string }) {
     const payload = { username: user.username, sub: user.userId };
     return {
       access_token: this.jwtService.sign(payload),

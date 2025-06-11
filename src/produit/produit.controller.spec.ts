@@ -4,6 +4,7 @@ import { ProduitService } from './produit.service';
 
 describe('ProduitController', () => {
   let controller: ProduitController;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let service: ProduitService;
 
   const mockProduitService = {
@@ -13,9 +14,7 @@ describe('ProduitController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ProduitController],
-      providers: [
-        { provide: ProduitService, useValue: mockProduitService },
-      ],
+      providers: [{ provide: ProduitService, useValue: mockProduitService }],
     }).compile();
 
     controller = module.get<ProduitController>(ProduitController);

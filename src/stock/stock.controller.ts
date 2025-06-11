@@ -1,5 +1,5 @@
 import {
-    Body,
+  Body,
   Controller,
   Get,
   Param,
@@ -20,8 +20,8 @@ import { StockResponseDto } from './dto/stock-response.dto';
 import { ReapprovisionnementDto } from './dto/reapprovisionnement.dto';
 
 @ApiTags('Stock')
-//@ApiBearerAuth('jwt')
-//@UseGuards(JwtAuthGuard)
+@ApiBearerAuth('jwt')
+@UseGuards(JwtAuthGuard)
 @Controller('stock')
 export class StockController {
   constructor(private readonly stockService: StockService) {}

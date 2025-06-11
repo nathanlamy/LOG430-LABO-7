@@ -4,6 +4,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 describe('ProduitService', () => {
   let service: ProduitService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let prisma: PrismaService;
 
   const mockPrisma = {
@@ -39,7 +40,9 @@ describe('ProduitService', () => {
 
     const result = await service.chercherProduits({ id: 1 });
     expect(result).toEqual(expected);
-    expect(mockPrisma.produit.findMany).toHaveBeenCalledWith({ where: { id: 1 } });
+    expect(mockPrisma.produit.findMany).toHaveBeenCalledWith({
+      where: { id: 1 },
+    });
   });
 
   it('should filter by nom (case insensitive)', async () => {

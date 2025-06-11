@@ -23,8 +23,8 @@ import { CreateVenteDto } from './dto/create-vente.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 
 @ApiTags('Ventes')
-//@ApiBearerAuth('jwt')
-//@UseGuards(JwtAuthGuard)
+@ApiBearerAuth('jwt')
+@UseGuards(JwtAuthGuard)
 @Controller('ventes')
 export class VenteController {
   constructor(private readonly venteService: VenteService) {}

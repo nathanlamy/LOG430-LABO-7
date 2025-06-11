@@ -8,7 +8,14 @@ import { VenteModule } from './vente/vente.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, ProduitModule, StockModule, VenteModule, DashboardModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    ProduitModule,
+    StockModule,
+    VenteModule,
+    DashboardModule,
+  ],
   providers: [PrismaService],
 })
 export class AppModule {}
