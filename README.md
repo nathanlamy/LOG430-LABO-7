@@ -2,7 +2,7 @@
 
 **Cours :** Architecture Logicielle (LOG430)  
 **Session :** Été 2025  
-**Laboratoire 3 – Exposition d’une API RESTful**
+**Laboratoire 3 :** Exposition d’une API RESTful  
 **Auteur :** Nathan Lamy
 
 ---
