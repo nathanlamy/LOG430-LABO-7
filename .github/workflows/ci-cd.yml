@@ -65,6 +65,20 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project (check dist/)
+        run: |
+          npm run build
+          echo "Contents of dist:"
+          ls -la dist
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
