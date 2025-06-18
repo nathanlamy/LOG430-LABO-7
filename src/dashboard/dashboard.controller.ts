@@ -1,12 +1,13 @@
-import { Controller, Get, UseInterceptors } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+//import UseInterceptors from '@nestjs/common';
 import { DashboardService } from './dashboard.service';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt.guard';
-import { CacheInterceptor } from '@nestjs/cache-manager';
+//import { CacheInterceptor } from '@nestjs/cache-manager';
 
-@UseInterceptors(CacheInterceptor)
+//@UseInterceptors(CacheInterceptor)
 @ApiTags('Dashboard')
 @ApiBearerAuth('jwt')
 @UseGuards(JwtAuthGuard)

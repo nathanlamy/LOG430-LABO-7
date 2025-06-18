@@ -8,7 +8,7 @@ import { VenteModule } from './vente/vente.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { CacheModule } from '@nestjs/cache-manager';
-import { redisStore } from 'cache-manager-ioredis';
+
 
 @Module({
   imports: [
@@ -20,12 +20,15 @@ import { redisStore } from 'cache-manager-ioredis';
     DashboardModule,
     PrometheusModule.register(),
     CacheModule.registerAsync({
-      useFactory: async () => ({
-        store: await redisStore(),
-        host: 'redis',
-        port: 6379,
-        ttl: 30,
-      }),
+      useFactory: async () => {
+        const redisStore = (await import('cache-manager-redis-store')).default;
+        return {
+          store: redisStore,
+          host: 'redis',
+          port: 6379,
+          ttl: 30,
+        };
+      },
     }),
   ],
   providers: [PrismaService],
