@@ -30,14 +30,15 @@ Ce projet s'inscrit dans la continuité du Laboratoire 2. Il vise à exposer les
 ### 1. Cloner le projet
 
 ```bash
-git clone <url-du-repo>
-cd backend-projet-magasin
+git clone https://github.com/nathanlamy/LOG430-LABO-5
+cd /LOG430-LABO-5
 ```
 
 ### 2. Installer les dépendances
 
 ```bash
 npm install
+npx prisma generate
 ```
 
 ### 3. Lancer l’application localement

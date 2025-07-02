@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  db-produit:
+    image: postgres
+    container_name: db-produit
+    restart: always
+    environment:
+      POSTGRES_DB: produit_db
+      POSTGRES_USER: produit_user
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+
+  produit-service:
+    build: .
+    container_name: produit-service
+    environment:
+      DATABASE_URL: postgres://produit_user:secret@db-produit:5432/produit_db
+    depends_on:
+      - db-produit
+    ports:
+      - "3000:3000"  # ou le port de ton app Nest

@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  # ==================== PRODUIT SERVICE ====================
+  db-produit:
+    image: postgres:14
+    container_name: db-produit
+    environment:
+      POSTGRES_DB: produit_db
+      POSTGRES_USER: produit_user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - produit_data:/var/lib/postgresql/data
+    networks:
+      - magasin_net
+
+  produit-service:
+    image: nathanlamyy/produit-service:latest
+    container_name: produit-service
+    depends_on:
+      - db-produit
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://produit_user:secret@db-produit:5432/produit_db
+    ports:
+      - "3001:3000"
+    networks:
+      - magasin_net
+
+  # ==================== STOCK SERVICE ====================
+  db-stock:
+    image: postgres:14
+    container_name: db-stock
+    environment:
+      POSTGRES_DB: stock_db
+      POSTGRES_USER: stock_user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - stock_data:/var/lib/postgresql/data
+    networks:
+      - magasin_net
+
+  stock-service:
+    image: nathanlamyy/stock-service:latest
+    container_name: stock-service
+    depends_on:
+      - db-stock
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://stock_user:secret@db-stock:5432/stock_db
+    ports:
+      - "3002:3000"
+    networks:
+      - magasin_net
+
+  # ==================== VENTE SERVICE ====================
+  db-vente:
+    image: postgres:14
+    container_name: db-vente
+    environment:
+      POSTGRES_DB: vente_db
+      POSTGRES_USER: vente_user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - vente_data:/var/lib/postgresql/data
+    networks:
+      - magasin_net
+
+  vente-service:
+    image: nathanlamyy/vente-service:latest
+    container_name: vente-service
+    depends_on:
+      - db-vente
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://vente_user:secret@db-vente:5432/vente_db
+    ports:
+      - "3003:3000"
+    networks:
+      - magasin_net
+
+  # ==================== REPORTING SERVICE ====================
+  db-reporting:
+    image: postgres:14
+    container_name: db-reporting
+    environment:
+      POSTGRES_DB: reporting_db
+      POSTGRES_USER: reporting_user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - reporting_data:/var/lib/postgresql/data
+    networks:
+      - magasin_net
+
+  reporting-service:
+    image: nathanlamyy/reporting-service:latest
+    container_name: reporting-service
+    depends_on:
+      - db-reporting
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://reporting_user:secret@db-reporting:5432/reporting_db
+    ports:
+      - "3004:3000"
+    networks:
+      - magasin_net
+
+volumes:
+  produit_data:
+  stock_data:
+  vente_data:
+  reporting_data:
+
+networks:
+  magasin_net:

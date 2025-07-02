@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Magasin {
+  id        Int      @id @default(autoincrement())
+  nom       String
+  quartier  String
+  stocks    Stock[]
+  ventes    Vente[]
+}
+
+model Produit {
+  id          Int      @id @default(autoincrement())
+  nom         String
+  categorie   String
+  prix        Float
+  description String?
+  stocks      Stock[]
+  lignesVente LigneVente[]
+  stockCentral StockCentral[]
+}
+
+model Stock {
+  id            Int      @id @default(autoincrement())
+  produitId     Int
+  magasinId     Int
+  quantite      Int
+  seuilCritique Int
+  produit       Produit  @relation(fields: [produitId], references: [id])
+  magasin       Magasin  @relation(fields: [magasinId], references: [id])
+}
+
+model Vente {
+  id        Int          @id @default(autoincrement())
+  date      DateTime     @default(now())
+  total     Float
+  magasinId Int
+  magasin   Magasin      @relation(fields: [magasinId], references: [id])
+  lignes    LigneVente[]
+}
+
+model LigneVente {
+  id            Int      @id @default(autoincrement())
+  venteId       Int
+  produitId     Int
+  quantite      Int
+  prixUnitaire  Float
+  vente         Vente    @relation(fields: [venteId], references: [id])
+  produit       Produit  @relation(fields: [produitId], references: [id])
+}
+
+model StockCentral {
+  id            Int      @id @default(autoincrement())
+  produitId     Int
+  quantite      Int
+  seuilCritique Int
+  produit       Produit  @relation(fields: [produitId], references: [id])
+}

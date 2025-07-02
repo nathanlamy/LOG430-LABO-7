@@ -9,7 +9,7 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('Magasin API')
+    .setTitle('Reporting API')
     .setDescription('Developped by Nathan Lamy')
     .setVersion('1.0')
     .addBearerAuth(
@@ -25,7 +25,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-magasin', app, document);
+  SwaggerModule.setup('api-reporting', app, document);
 
   app.enableCors({
     origin: '*', // Permettre toutes les origines
@@ -41,7 +41,7 @@ bootstrap()
   .then(() => {
     Logger.log('Application is running on: http://localhost:3000', 'Bootstrap');
     Logger.log(
-      'Swagger UI is available at: http://localhost:3000/api-magasin',
+      'Swagger UI is available at: http://localhost:3000/api-reporting',
       'Bootstrap',
     );
   })
