@@ -1,0 +1,44 @@
+{
+  "version": 3,
+  "name": "krakend-gateway",
+  "port": 8080,
+  "timeout": "3000ms",
+  "endpoints": [
+    {
+      "endpoint": "/produits",
+      "method": "GET",
+      "backend": [
+        {
+          "host": [ "http://produit-service:3000" ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/ventes",
+      "method": "GET",
+      "backend": [
+        {
+          "host": [ "http://vente-service:3000" ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/stock",
+      "method": "GET",
+      "backend": [
+        {
+          "host": [ "http://stock-service:3000" ]
+        }
+      ]
+    },
+    {
+      "endpoint": "/rapport",
+      "method": "GET",
+      "backend": [
+        {
+          "host": [ "http://reporting-service:3000" ]
+        }
+      ]
+    }
+  ]
+}
