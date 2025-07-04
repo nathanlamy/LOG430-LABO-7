@@ -41,6 +41,67 @@ jobs:
   #     - name: Run ESLint
   #       run: npm run lint
 
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: magasin_user
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Wait for Postgres and create DBs
+        env:
+          PGPASSWORD: secret
+        run: |
+          until pg_isready -h localhost -p 5432; do sleep 1; done
+
+          for db in produit_db vente_db stock_db reporting_db; do
+            echo "Creating database: $db"
+            psql -h localhost -U magasin_user -c "CREATE DATABASE $db;"
+          done
+
+      - name: Run tests for all services
+        run: |
+          for dir in produit-service vente-service stock-service reporting-service; do
+            echo "🧪 Testing $dir"
+            cd $dir
+            npm ci
+            case $dir in
+              produit-service)
+                export DATABASE_URL=postgres://magasin_user:secret@localhost:5432/produit_db
+                ;;
+              vente-service)
+                export DATABASE_URL=postgres://magasin_user:secret@localhost:5432/vente_db
+                ;;
+              stock-service)
+                export DATABASE_URL=postgres://magasin_user:secret@localhost:5432/stock_db
+                ;;
+              reporting-service)
+                export DATABASE_URL=postgres://magasin_user:secret@localhost:5432/reporting_db
+                ;;
+            esac
+            npm test
+            cd ..
+          done
+
+
+
   # test:
   #   runs-on: ubuntu-latest
   #   services:
