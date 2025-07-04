@@ -36,6 +36,11 @@ async function bootstrap() {
 
   await app.listen(3000);
   Logger.log('Application démarrée sur le port 3000: http://localhost:3000', 'Bootstrap');
+
+  app.use((req, res, next) => {
+    Logger.log('HEADERS REÇUS:', req.headers, 'Bootstrap');
+    next();
+  });
 }
 bootstrap()
   .then(() => {
@@ -44,6 +49,8 @@ bootstrap()
       'Swagger UI is available at: http://localhost:3000/api-vente',
       'Bootstrap',
     );
+
+    console.log('Testing console.log in main.ts');
   })
   .catch((error) => {
     console.error('Error during application bootstrap:', error);

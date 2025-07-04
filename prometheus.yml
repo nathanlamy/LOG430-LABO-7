@@ -1,7 +1,19 @@
 global:
-  scrape_interval: 15s
+  scrape_interval: 5s
 
 scrape_configs:
-  - job_name: 'nest-app'
+  - job_name: 'produit-service'
     static_configs:
-      - targets: ['host.docker.internal:3000']
+      - targets: ['10.194.32.204:3001']
+
+  # - job_name: 'stock-service'
+  #   static_configs:
+  #     - targets: ['10.194.32.204:3002']
+
+  # - job_name: 'vente-service'
+  #   static_configs:
+  #     - targets: ['10.194.32.204:3003']
+
+  # - job_name: 'reporting-service'
+  #   static_configs:
+  #     - targets: ['10.194.32.204:3004']

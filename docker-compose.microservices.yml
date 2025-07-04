@@ -42,6 +42,27 @@ services:
     networks:
       - magasin_net
 
+  produit-service-1:
+    image: nathanlamyy/produit-service:latest
+    container_name: produit-service-1
+    depends_on:
+      - db-produit
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://produit_user:secret@db-produit:5432/produit_db
+    networks:
+      - magasin_net
+
+  produit-service-2:
+    image: nathanlamyy/produit-service:latest
+    container_name: produit-service-2
+    depends_on:
+      - db-produit
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://produit_user:secret@db-produit:5432/produit_db
+    networks:
+      - magasin_net
   # ==================== STOCK SERVICE ====================
   db-stock:
     image: postgres:14

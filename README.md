@@ -31,7 +31,7 @@ Ce projet s'inscrit dans la continuité du Laboratoire 2. Il vise à exposer les
 
 ```bash
 git clone https://github.com/nathanlamy/LOG430-LABO-5
-cd /LOG430-LABO-5
+cd /LOG430-LABO-5/{service-name}
 ```
 
 ### 2. Installer les dépendances
@@ -64,7 +64,11 @@ npm run start
 
 ## Documentation Swagger
 
-- Interface Swagger UI : http://localhost:3000/api-magasin
+### Interfaces Swagger UI
+- http://{ip-vm}:3001/api-produit
+- http://{ip-vm}:3002/api-stock
+- http://{ip-vm}:3003/api-vente
+- http://{ip-vm}:3004/api-reporting
 
 ---
 
@@ -97,6 +101,34 @@ npm run lint
 
 ---
 
+## Routes avec le gateway KrakenD
+
+### Auth
+- `POST http://{ip-vm}:8080/auth/login`
+
+### Produits
+- `GET http://{ip-vm}:8080/produits`
+- `PATCH http://{ip-vm}:8080/produits/{id}`
+
+### Ventes
+- `GET http://{ip-vm}:8080/ventes`
+- `POST http://{ip-vm}:8080/ventes`
+- `DELETE http://{ip-vm}:8080/ventes/{id}`
+- `GET http://{ip-vm}:8080/ventes/rapport-consolide`
+
+### Stock
+- `GET http://{ip-vm}:8080/stock`
+- `POST http://{ip-vm}:8080/stock/reapprovisionnement`
+- `GET http://{ip-vm}:8080/stock/{magasinId}`
+
+### Rapport
+- `GET http://{ip-vm}:8080/rapport`
+
+---
+
+## Postman
+- Importer le fichier `LOG430-LABO-5.postman_collection.json` dans Postman
+---
 ## Sécurité
 
 - CORS activé  

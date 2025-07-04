@@ -1,10 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ProduitModule } from './produit/produit.module';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from 'prisma/prisma.module';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { CacheModule } from '@nestjs/cache-manager';
+import { MetricsModule } from './metrics/metrics.module';
+import { MetricsMiddleware } from './metrics/metrics.middleware';
 
 
 @Module({
@@ -12,6 +14,7 @@ import { CacheModule } from '@nestjs/cache-manager';
     PrismaModule,
     AuthModule,
     ProduitModule,
+    MetricsModule,
     PrometheusModule.register(),
     CacheModule.registerAsync({
       useFactory: async () => {
@@ -27,4 +30,8 @@ import { CacheModule } from '@nestjs/cache-manager';
   ],
   providers: [PrismaService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(MetricsMiddleware).forRoutes('*');
+  }
+}

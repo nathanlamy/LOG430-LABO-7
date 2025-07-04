@@ -5,40 +5,212 @@
   "timeout": "3000ms",
   "endpoints": [
     {
-      "endpoint": "/produits",
-      "method": "GET",
+      "endpoint": "/auth/login",
+      "method": "POST",
       "backend": [
         {
-          "host": [ "http://produit-service:3000" ]
+          "host": ["http://vente-service:3000"],
+          "url_pattern": "/auth/login"
+        }
+      ]
+    },
+    {
+      "endpoint": "/produits",
+      "method": "GET",
+      "headers_to_pass": ["Authorization"],
+      "backend": [
+        {
+          "host": ["http://produit-service:3000"],
+          "url_pattern": "/produits"
+        }
+      ]
+    },
+    {
+      "endpoint": "/produits/{id}",
+      "method": "PATCH",
+      "headers_to_pass": ["Authorization"],
+      "extra_config": {
+        "proxy": {
+          "static": true
+        }
+      },
+      "backend": [
+        {
+          "host": ["http://produit-service:3000"],
+          "url_pattern": "/produits/{id}"
         }
       ]
     },
     {
       "endpoint": "/ventes",
       "method": "GET",
+      "headers_to_pass": ["Authorization"],
       "backend": [
         {
-          "host": [ "http://vente-service:3000" ]
+          "host": [ "http://vente-service:3000" ],
+          "url_pattern": "/ventes",
+          "github.com/devopsfaith/krakend/proxy": {
+            "headers_to_pass": ["Authorization"],
+            "headers_to_send": {
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwic3ViIjoxLCJpYXQiOjE3NTE2NTk1MDYsImV4cCI6MTc1MTY2MzEwNn0.ekomqtTPSwabVwf-kI9FFh6DsqqoNUms5MG_9DmsrRU"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "endpoint": "/ventes/debug-headers",
+      "method": "GET",
+      "headers_to_pass": ["Authorization"],
+      "disable_rest": true,
+      "extra_config": {
+        "proxy": {
+          "static": true
+        }
+      },
+      "backend": [
+        {
+          "host": ["http://vente-service:3000"],
+          "url_pattern": "/ventes/debug-headers"
+        }
+      ]
+    },
+    {
+      "endpoint": "/ventes/{id}",
+      "method": "GET",
+      "headers_to_pass": ["Authorization"],
+      "extra_config": {
+        "proxy": {
+          "static": true
+        }
+      },
+      "backend": [
+        {
+          "host": ["http://vente-service:3000"],
+          "url_pattern": "/ventes/{id}"
+        }
+      ]
+    },
+    {
+      "endpoint": "/ventes/rapport-consolide",
+      "method": "GET",
+      "headers_to_pass": ["Authorization"],
+      "disable_rest": true,
+      "extra_config": {
+        "proxy": {
+          "static": true
+        }
+      },
+      "backend": [
+        {
+          "host": ["http://vente-service:3000"],
+          "url_pattern": "/ventes/rapport-consolide"
+        }
+      ]
+    },
+    {
+      "endpoint": "/ventes",
+      "method": "POST",
+      "headers_to_pass": ["Authorization"],
+      "disable_rest": true,
+      "extra_config": {
+        "proxy": {
+          "static": true
+        }
+      },
+      "backend": [
+        {
+          "host": ["http://vente-service:3000"],
+          "url_pattern": "/ventes"
+        }
+      ]
+    },
+    {
+      "endpoint": "/ventes/{id}",
+      "method": "DELETE",
+      "headers_to_pass": ["Authorization"],
+      "disable_rest": true,
+      "extra_config": {
+        "proxy": {
+          "static": true
+        }
+      },
+      "backend": [
+        {
+          "host": ["http://vente-service:3000"],
+          "url_pattern": "/ventes/{id}"
         }
       ]
     },
     {
       "endpoint": "/stock",
       "method": "GET",
+      "headers_to_pass": ["Authorization"],
       "backend": [
         {
-          "host": [ "http://stock-service:3000" ]
+          "host": [ "http://stock-service:3000" ],
+          "url_pattern": "/stock/central"
+        }
+      ]
+    },
+    {
+      "endpoint": "/stock/reapprovisionnement",
+      "method": "POST",
+      "headers_to_pass": ["Authorization"],
+      "extra_config": {
+        "proxy": {
+          "static": true
+        }
+      },
+      "backend": [
+        {
+          "host": ["http://stock-service:3000"],
+          "url_pattern": "/stock/reapprovisionnement"
+        }
+      ]
+    },
+    {
+      "endpoint": "/stock/{magasinId}",
+      "method": "GET",
+      "headers_to_pass": ["Authorization"],
+      "extra_config": {
+        "proxy": {
+          "static": true
+        }
+      },
+      "backend": [
+        {
+          "host": ["http://stock-service:3000"],
+          "url_pattern": "/stock/{magasinId}"
         }
       ]
     },
     {
       "endpoint": "/rapport",
       "method": "GET",
+      "headers_to_pass": ["Authorization"],
       "backend": [
         {
-          "host": [ "http://reporting-service:3000" ]
+          "host": [ "http://reporting-service:3000" ],
+          "url_pattern": "/dashboard"
         }
       ]
     }
-  ]
+  ],
+  "output_encoding": "no-op",
+  "extra_config": {
+    "proxy": {
+    "headers_to_pass": ["Authorization"],
+    "static": true
+  }
+  },
+  "headers_to_pass": ["Authorization"],
+  "telemetry": {
+    "metrics": {
+      "collection_interval": "10s",
+      "proxy_disabled": false,
+      "backend_disabled": false,
+      "endpoint": "/__debug/metrics"
+    }
+  }
 }

@@ -10,6 +10,7 @@ import {
   UseGuards,
   UsePipes,
   ValidationPipe,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -115,5 +116,11 @@ export class VenteController {
   @ApiResponse({ status: 404, description: 'Vente introuvable' })
   async annulerVente(@Param('id', ParseIntPipe) id: number) {
     return this.venteService.annulerVente(id);
+  }
+
+  @Get('debug-headers')
+  getHeaders(@Req() req: Request) {
+    console.log('📩 Headers reçus par vente-service:', req.headers);
+    return req.headers;
   }
 }
