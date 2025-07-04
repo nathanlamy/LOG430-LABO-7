@@ -1,14 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProduitController } from './produit.controller';
 import { ProduitService } from './produit.service';
+import { UpdateProduitDto } from './dto/update-produit.dto';
 
 describe('ProduitController', () => {
   let controller: ProduitController;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let service: ProduitService;
 
   const mockProduitService = {
     chercherProduits: jest.fn(),
+    updateProduit: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -41,5 +42,26 @@ describe('ProduitController', () => {
       nom: 'Test',
       categorie: undefined,
     });
+  });
+
+  it('should call updateProduit with correct params', async () => {
+    const updateDto: UpdateProduitDto = {
+      nom: 'Pommes bio',
+      categorie: 'Fruits',
+      prix: 1.49,
+      description: 'Pomme rouge juteuse',
+    };
+
+    const mockResponse = {
+      id: 1,
+      ...updateDto,
+    };
+
+    mockProduitService.updateProduit.mockResolvedValue(mockResponse);
+
+    const result = await controller.updateProduit(1, updateDto);
+
+    expect(result).toEqual(mockResponse);
+    expect(mockProduitService.updateProduit).toHaveBeenCalledWith(1, updateDto);
   });
 });
