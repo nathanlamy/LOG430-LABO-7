@@ -41,8 +41,17 @@ describe('DashboardController', () => {
         ],
         surstock: [
           {
-            magasin: 'Magasin B',
-            produit: 'Souris',
+            magasin: { id: 2, nom: 'Magasin B', quartier: 'Centre' },
+            produit: {
+              id: 5,
+              nom: 'Souris',
+              categorie: 'Accessoires',
+              prix: 25.5,
+              description: 'Souris sans fil',
+            },
+            id: 99,
+            magasinId: 2,
+            produitId: 5,
             quantite: 250,
             seuilCritique: 100,
           },
