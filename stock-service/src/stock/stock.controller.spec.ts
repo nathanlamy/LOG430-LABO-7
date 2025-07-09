@@ -33,7 +33,7 @@ describe('StockController', () => {
   describe('getStock', () => {
     it('should return stock for a given magasin', async () => {
       const mockStock = [
-        { produit_id: 1, nom: 'Produit A', quantite: 5, seuil_critique: 2 },
+        { produitId: 1, nom: 'Produit A', quantite: 5, seuil_critique: 2 },
       ];
       service.getStockParMagasin.mockResolvedValueOnce(mockStock);
 
@@ -47,7 +47,7 @@ describe('StockController', () => {
   describe('consulterStockCentral', () => {
     it('should return stock central list', async () => {
       const mockStockCentral = [
-        { produit_id: 1, nom: 'Produit B', quantite: 100, seuil_critique: 10 },
+        { produitId: 1, nom: 'Produit B', quantite: 100, seuil_critique: 10 },
       ];
       service.consulterStockCentral.mockResolvedValueOnce(mockStockCentral);
 
@@ -62,7 +62,8 @@ describe('StockController', () => {
     it('should call reapprovisionner with correct dto', async () => {
       const dto: ReapprovisionnementDto = {
         magasinId: 1,
-        produits: [{ produit_id: 2, quantite: 10 }],
+        produitId: 2,
+        quantite: 10,
       };
       const mockResponse = { message: 'Réapprovisionnement effectué' };
 
