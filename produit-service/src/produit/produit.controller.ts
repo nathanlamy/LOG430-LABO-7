@@ -17,8 +17,8 @@ import { UpdateProduitDto } from './dto/update-produit.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 
 @ApiTags('Produits')
-//@ApiBearerAuth('jwt')
-//@UseGuards(JwtAuthGuard)
+@ApiBearerAuth('jwt')
+@UseGuards(JwtAuthGuard)
 @Controller('produits')
 export class ProduitController {
   constructor(private readonly produitService: ProduitService) {}
