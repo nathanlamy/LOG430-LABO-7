@@ -215,8 +215,3 @@ jobs:
 
           docker build -t ${{ secrets.DOCKER_USERNAME }}/reporting-service:latest ./reporting-service
           docker push ${{ secrets.DOCKER_USERNAME }}/reporting-service:latest
-
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/krakend-gateway:latest ./krakend
-          docker push ${{ secrets.DOCKER_USERNAME }}/krakend-gateway:latest
-
-

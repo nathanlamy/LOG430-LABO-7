@@ -1,0 +1,201 @@
+{
+  "info": {
+    "name": "LOG430-LABO-5",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://10.194.32.204:8080/auth/login"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Produits - Get All",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <TON_TOKEN_JWT>"
+          }
+        ],
+        "url": {
+          "raw": "http://10.194.32.204:8080/produits"
+        }
+      }
+    },
+    {
+      "name": "Produits - Update",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <TON_TOKEN_JWT>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://10.194.32.204:8080/produits/1"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nom\": \"Nouveau Nom\",\n  \"prix\": 99.99\n}"
+        }
+      }
+    },
+    {
+      "name": "Ventes - Get All",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <TON_TOKEN_JWT>"
+          }
+        ],
+        "url": {
+          "raw": "http://10.194.32.204:8080/ventes"
+        }
+      }
+    },
+    {
+      "name": "Ventes - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <TON_TOKEN_JWT>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://10.194.32.204:8080/ventes"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"produitId\": 1,\n  \"quantite\": 3\n}"
+        }
+      }
+    },
+    {
+      "name": "Ventes - Delete",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <TON_TOKEN_JWT>"
+          }
+        ],
+        "url": {
+          "raw": "http://10.194.32.204:8080/ventes/1"
+        }
+      }
+    },
+    {
+      "name": "Ventes - Rapport Consolide",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <TON_TOKEN_JWT>"
+          }
+        ],
+        "url": {
+          "raw": "http://10.194.32.204:8080/ventes/rapport-consolide"
+        }
+      }
+    },
+    {
+      "name": "Stock - Get Central",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <TON_TOKEN_JWT>"
+          }
+        ],
+        "url": {
+          "raw": "http://10.194.32.204:8080/stock"
+        }
+      }
+    },
+    {
+      "name": "Stock - R\u00e9approvisionnement",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <TON_TOKEN_JWT>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://10.194.32.204:8080/stock/reapprovisionnement"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"produitId\": 1,\n  \"magasinId\": 1,\n  \"quantite\": 20\n}"
+        }
+      }
+    },
+    {
+      "name": "Stock - Get Magasin",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <TON_TOKEN_JWT>"
+          }
+        ],
+        "url": {
+          "raw": "http://10.194.32.204:8080/stock/1"
+        }
+      }
+    },
+    {
+      "name": "Rapport - Dashboard",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <TON_TOKEN_JWT>"
+          }
+        ],
+        "url": {
+          "raw": "http://10.194.32.204:8080/rapport"
+        }
+      }
+    }
+  ]
+}
