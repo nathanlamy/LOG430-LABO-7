@@ -1,0 +1,108 @@
+@startuml
+title Vue logique
+
+package "boutique-service" {
+  class Magasin {
+    id: int
+    nom: string
+    quartier: string
+  }
+}
+
+package "produit-service" {
+  class Produit {
+    id: int
+    nom: string
+    categorie: string
+    prix: float
+    description: string
+  }
+
+  class StockCentral {
+    id: int
+    produitId: int
+    quantite: int
+    seuilCritique: int
+  }
+
+  Produit "1" -- "0..*" StockCentral
+}
+
+package "stock-service" {
+  class Stock {
+    id: int
+    produitId: int
+    magasinId: int
+    quantite: int
+    seuilCritique: int
+  }
+
+  Produit "1" <-- "0..*" Stock
+  Magasin "1" <-- "0..*" Stock
+}
+
+package "vente-service" {
+  class Vente {
+    id: int
+    date: DateTime
+    total: float
+    magasinId: int
+  }
+
+  class LigneVente {
+    id: int
+    venteId: int
+    produitId: int
+    quantite: int
+    prixUnitaire: float
+  }
+
+  Produit "1" <-- "0..*" LigneVente
+  Vente "1" <-- "0..*" LigneVente
+  Magasin "1" <-- "0..*" Vente
+}
+
+package "reporting-service" {
+  class Rapport {
+    id: int
+    date: DateTime
+    totalVentes: float
+    magasinId: int
+  }
+
+  Magasin "1" <-- "0..*" Rapport
+}
+
+package "orchestrateur-saga-service" {
+  class Commande {
+    id: string
+    magasinId: int
+    etat: EtatCommande
+    total: float
+    venteId: int?
+  }
+
+  class CommandeItem {
+    id: int
+    commandeId: string
+    produitId: int
+    quantite: int
+    prixUnitaire: float
+  }
+
+  class SagaEvent {
+    id: int
+    commandeId: string
+    step: string
+    outcome: string
+    details: string?
+    timestamp: DateTime
+  }
+
+  Commande "1" -- "0..*" CommandeItem
+  Commande "1" -- "0..*" SagaEvent
+  Produit "1" <-- "0..*" CommandeItem
+  Magasin "1" <-- "0..*" Commande
+  Vente "0..1" <-- "0..*" Commande
+}
+@enduml

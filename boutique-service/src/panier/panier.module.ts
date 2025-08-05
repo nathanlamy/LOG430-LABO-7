@@ -4,6 +4,7 @@ import { PanierService } from './panier.service';
 
 @Module({
   controllers: [PanierController],
-  providers: [PanierService]
+  providers: [PanierService],
+  exports: [PanierService], // Exporting PanierService to be used in other modules
 })
 export class PanierModule {}

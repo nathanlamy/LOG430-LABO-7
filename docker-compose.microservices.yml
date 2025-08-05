@@ -140,11 +140,40 @@ services:
       - "3004:3000"
     networks:
       - magasin_net
+  
+  # ==================== ORCHESTRATEUR SAGA SERVICE ====================
+  db-orchestrateur:
+    image: postgres:14
+    container_name: db-orchestrateur
+    environment:
+      POSTGRES_DB: orchestrateur_db
+      POSTGRES_USER: orchestrateur_user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - ./orchestrateur-saga-service/db:/var/lib/postgresql/data
+    networks:
+      - magasin_net
+  
+  orchestrateur-saga-service:
+    build:
+      context: ./orchestrateur-saga-service
+      dockerfile: Dockerfile
+    container_name: orchestrateur-saga-service
+    depends_on:
+      - db-orchestrateur
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://orchestrateur_user:secret@db-orchestrateur:5432/orchestrateur_db
+    ports:
+      - "3005:3000"
+    networks:
+      - magasin_net
 
 volumes:
   produit_data:
   stock_data:
   vente_data:
+  orchestrateur_data:
   reporting_data:
 
 networks:

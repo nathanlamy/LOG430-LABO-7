@@ -1,0 +1,49 @@
+@startuml
+title Vue de développement - stock-service
+
+package "stock-service" {
+  folder "prisma" {
+    [prisma.module.ts]
+    [prisma.service.ts]
+    [schema.prisma]
+    [seed.ts]
+  }
+
+  folder "src" {
+    package "auth" {
+      [auth.controller.ts]
+      [auth.module.ts]
+      [auth.service.ts]
+      [jwt.guard.ts]
+      [jwt.strategy.ts]
+    }
+
+    package "stock" {
+      folder "dto"
+      [stock.controller.ts]
+      [stock.controller.spec.ts]
+      [stock.service.spec.ts]
+      [stock.module.ts]
+      [stock.service.ts]
+    }
+    
+    package "metrics" {
+      [metrics.middleware.ts]
+      [metrics.module.ts]
+      [metrics.providers.ts]
+      [metrics.service.ts]
+    }
+
+
+    [app.module.ts]
+    [main.ts]
+  }
+
+  [Dockerfile]
+  [.prettierrc]
+  [eslint-config.mjs]
+  [nest-cli.json]
+  [package.json]
+  [tsconfig.json]
+}
+@enduml
