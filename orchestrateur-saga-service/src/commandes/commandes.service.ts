@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Injectable, HttpException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCommandeDto } from './dto/create-command.dto';
-import { MetricsService } from '../../metrics/metrics.service';
+import { MetricsService } from '../metrics/metrics.service';
 
 const BASE = 'http://{IP_VM}:8080'; // KrakenD
 const produitsAPI = `${BASE}/produits`;
