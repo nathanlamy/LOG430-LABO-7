@@ -101,7 +101,7 @@ npm run lint
 
 ---
 
-## Routes avec le gateway KrakenD
+## Routes API
 
 ### Auth
 - `POST http://{ip-vm}:8080/auth/login`
@@ -124,6 +124,12 @@ npm run lint
 ### Rapport
 - `GET http://{ip-vm}:8080/rapport`
 
+### Panier
+- `POST http://{ip-vm}:8080/panier`
+- `GET http://{ip-vm}:8080/panier`
+
+### Commande
+- `POST http://{ip-vm}:8080/commande`
 ---
 
 ## Postman

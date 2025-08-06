@@ -141,6 +141,34 @@ services:
     networks:
       - magasin_net
   
+  # ====================BOUTIQUE SERVICE ====================
+  db-boutique:
+    image: postgres:14
+    container_name: db-boutique
+    environment:
+      POSTGRES_DB: boutique_db
+      POSTGRES_USER: boutique_user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - ./boutique-service/db:/var/lib/postgresql/data
+    networks:
+      - magasin_net
+  boutique-service:
+    build:
+      context: ./boutique-service
+      dockerfile: Dockerfile
+    container_name: boutique-service
+    environment:
+      NODE_ENV: production
+      PRODUIT_SERVICE_URL: http://produit-service:3000
+      VENTE_SERVICE_URL: http://vente-service:3000
+      STOCK_SERVICE_URL: http://stock-service:3000
+      REPORTING_SERVICE_URL: http://reporting-service:3000
+    ports:
+      - "4000:4000"
+    networks:
+      - magasin_net
+  
   # ==================== ORCHESTRATEUR SAGA SERVICE ====================
   db-orchestrateur:
     image: postgres:14
