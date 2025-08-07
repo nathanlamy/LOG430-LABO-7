@@ -150,7 +150,7 @@ services:
       POSTGRES_USER: boutique_user
       POSTGRES_PASSWORD: secret
     volumes:
-      - ./boutique-service/db:/var/lib/postgresql/data
+      - boutique_data:/var/lib/postgresql/data
     networks:
       - magasin_net
   boutique-service:
@@ -164,8 +164,9 @@ services:
       VENTE_SERVICE_URL: http://vente-service:3000
       STOCK_SERVICE_URL: http://stock-service:3000
       REPORTING_SERVICE_URL: http://reporting-service:3000
+      DATABASE_URL: postgres://boutique_user:secret@db-boutique:5432/boutique_db
     ports:
-      - "4000:4000"
+      - "3005:3000"
     networks:
       - magasin_net
   
@@ -178,7 +179,7 @@ services:
       POSTGRES_USER: orchestrateur_user
       POSTGRES_PASSWORD: secret
     volumes:
-      - ./orchestrateur-saga-service/db:/var/lib/postgresql/data
+      - orchestrateur_data:/var/lib/postgresql/data
     networks:
       - magasin_net
   
@@ -193,7 +194,7 @@ services:
       NODE_ENV: production
       DATABASE_URL: postgres://orchestrateur_user:secret@db-orchestrateur:5432/orchestrateur_db
     ports:
-      - "3005:3000"
+      - "3006:3000"
     networks:
       - magasin_net
 
@@ -201,8 +202,9 @@ volumes:
   produit_data:
   stock_data:
   vente_data:
-  orchestrateur_data:
   reporting_data:
+  orchestrateur_data:
+  boutique_data:
 
 networks:
   magasin_net:

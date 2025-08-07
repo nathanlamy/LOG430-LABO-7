@@ -7,6 +7,12 @@ package "boutique-service" {
     nom: string
     quartier: string
   }
+  
+  class Panier {
+    id: int
+    produitId: string
+    quantite: string
+  }
 }
 
 package "produit-service" {
@@ -104,5 +110,6 @@ package "orchestrateur-saga-service" {
   Produit "1" <-- "0..*" CommandeItem
   Magasin "1" <-- "0..*" Commande
   Vente "0..1" <-- "0..*" Commande
+  Panier "1" -- "0..*" Produit
 }
 @enduml

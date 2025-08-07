@@ -1,0 +1,54 @@
+@startuml
+title Saga synchrone – Orchestrateur de commande
+
+actor Client
+participant "Orchestrateur-Service" as Orchestrateur
+participant "Stock-Service" as Stock
+participant "Produit-Service" as Produits
+participant "Vente-Service" as Ventes
+
+Client -> Orchestrateur: POST /commandes\n{ magasinId, items, simulate? }
+activate Orchestrateur
+
+' Étape 1 : Vérifier le stock
+Orchestrateur -> Stock: GET /stock/{magasinId}
+alt Stock insuffisant
+  Orchestrateur -> Client: 409 ANNULEE\nraison = STOCK_INSUFFISANT
+  deactivate Orchestrateur
+else Stock OK
+  ' Étape 2 : Récupérer les prix et calculer total
+  Orchestrateur -> Produits: GET /produits
+  Orchestrateur -> Orchestrateur: Calcul des prixUnitaires + total
+
+  ' Étape 3 : Créer la vente
+  Orchestrateur -> Ventes: POST /ventes\n{ magasinId, total, lignes[] }
+  alt Échec création de vente
+    Orchestrateur -> Client: 422 ANNULEE\nraison = VENTE_ERREUR
+    deactivate Orchestrateur
+  else Vente créée
+    Orchestrateur -> Orchestrateur: etat = VENTE_CREEE
+
+    ' Étape 4 : Fin OK ou compensation si échec simulé après vente
+    alt Échec après vente (simulate.failAfterVenteCreated)
+      Orchestrateur -> Ventes: DELETE /ventes/{id}
+      Orchestrateur -> Stock: POST /stock/reapprovisionnement\n(par ligne)
+      Orchestrateur -> Client: 422 ANNULEE\nraison = ECHEC_APRES_VENTE
+      deactivate Orchestrateur
+    else Succès de la saga
+      Orchestrateur -> Client: 201 CONFIRMEE\n{ commandeId, venteId, total }
+      deactivate Orchestrateur
+    end
+  end
+end
+
+legend right
+Routes:
+- Stock : GET /stock/{magasinId}, POST /stock/reapprovisionnement
+- Produits : GET /produits
+- Ventes : POST /ventes, DELETE /ventes/{id}
+Notes:
+- Tous les appels sont synchrones via l'orchestrateur
+- Logs & events enregistrés (SagaEvent)
+- Métriques exposées: saga_* et http_*
+endlegend
+@enduml

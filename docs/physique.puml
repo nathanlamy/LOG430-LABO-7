@@ -1,0 +1,105 @@
+@startuml
+skinparam node {
+  BackgroundColor White
+  BorderColor Black
+}
+
+node "VM (10.194.32.204)" {
+
+  node "Docker Host" {
+
+    node "KrakenD Gateway (port 8080)" as krakend
+
+    node "produit-service-node" {
+      component "Instance 1" as produit1
+      component "Instance 2" as produit2
+      database "db-produit"
+    }
+
+    node "stock-service-node" {
+      component "Instance 1" as stock1
+      component "Instance 2" as stock2
+      database "db-stock"
+    }
+
+    node "vente-service-node" {
+      component "Instance 1" as vente1
+      component "Instance 2" as vente2
+      database "db-vente"
+    }
+
+    node "reporting-service-node" {
+      component "Instance 1" as reporting1
+      component "Instance 2" as reporting2
+      database "db-reporting"
+    }
+
+    node "boutique-service-node" {
+      component "Instance 1" as boutique1
+      component "Instance 2" as boutique2
+      database "db-boutique"
+    }
+
+    node "orchestrateur-saga-service-node" {
+      component "orchestrateur-saga-service" as saga
+      database "db-saga"
+    }
+
+    node "Monitoring" {
+      component "Prometheus" as prometheus
+      component "Grafana" as grafana
+      component "Node Exporter" as nodeexporter
+    }
+  }
+
+  ' Monitoring connections
+  prometheus --> produit1 : /metrics
+  prometheus --> produit2
+  prometheus --> stock1
+  prometheus --> stock2
+  prometheus --> vente1
+  prometheus --> vente2
+  prometheus --> reporting1
+  prometheus --> reporting2
+  prometheus --> boutique1
+  prometheus --> boutique2
+  prometheus --> saga
+  prometheus --> nodeexporter
+  grafana --> prometheus
+
+  ' Gateway routing
+  krakend --> produit1
+  krakend --> produit2
+  krakend --> stock1
+  krakend --> stock2
+  krakend --> vente1
+  krakend --> vente2
+  krakend --> reporting1
+  krakend --> reporting2
+  krakend --> boutique1
+  krakend --> boutique2
+
+  ' Saga calls to services
+  saga --> produit1 : http (produit)
+  saga --> stock1 : http (stock)
+  saga --> vente1 : http (vente)
+
+  ' DB access
+  produit1 --> "db-produit"
+  produit2 --> "db-produit"
+  stock1 --> "db-stock"
+  stock2 --> "db-stock"
+  vente1 --> "db-vente"
+  vente2 --> "db-vente"
+  reporting1 --> "db-reporting"
+  reporting2 --> "db-reporting"
+  boutique1 --> "db-boutique"
+  boutique2 --> "db-boutique"
+  boutique1 --> stock1
+  boutique1 --> vente1
+  boutique1 --> produit1
+
+  saga --> "db-saga"
+}
+
+@enduml

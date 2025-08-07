@@ -1,13 +1,14 @@
 @startuml
-title Diagramme de cas d'utilisation - Système de caisse
+title Diagramme de cas d'utilisation - Système de magasin
 
 left to right direction
 
 actor "Employé de magasin" as Empl
+actor "Client" as Client
 actor "Responsable logistique" as Resp
 actor "Gestionnaire maison mère" as Gest
 
-package "Système de caisse" {
+package "Système de magasin" {
 
   rectangle "Opérations de caisse" {
     usecase "Afficher les ventes" as UC_AfficherVente
@@ -16,7 +17,9 @@ package "Système de caisse" {
     usecase "Annuler une vente" as UC_AnnulerVente
   }
 
-  rectangle "Commande" {
+  rectangle "Commerce" {
+    usecase "Voir le panier" as UC_panier1
+    usecase "Ajouter au panier" as UC_panier2
     usecase "Passer une commande" as UC_Commande
   }
 
@@ -37,7 +40,10 @@ Empl --> UC_AfficherVente
 Empl --> UC_RechercherProduit
 Empl --> UC_EnregistrerVente
 Empl --> UC_AnnulerVente
-Empl --> UC_Commande
+
+Client --> UC_Commande
+Client --> UC_panier1
+Client --> UC_panier2
 
 Resp --> UC_ConsulterStock
 Resp --> UC_Approvisionner
