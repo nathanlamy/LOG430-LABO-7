@@ -50,6 +50,8 @@ node "VM (10.194.32.204)" {
       component "Grafana" as grafana
       component "Node Exporter" as nodeexporter
     }
+
+    node "Redis Streams" as redis
   }
 
   ' Monitoring connections
@@ -83,6 +85,13 @@ node "VM (10.194.32.204)" {
   saga --> produit1 : http (produit)
   saga --> stock1 : http (stock)
   saga --> vente1 : http (vente)
+
+  ' Redis Streams connections
+  produit1 --> redis : publie événements
+  stock1 --> redis : publie événements
+  vente1 --> redis : publie événements
+  saga --> redis : consomme/publie événements
+  reporting1 --> redis : consomme événements
 
   ' DB access
   produit1 --> "db-produit"

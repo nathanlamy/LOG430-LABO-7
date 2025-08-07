@@ -159,6 +159,61 @@ npm run lint
 }
 ```
 
+## Simulation de l'Orchestrateur de Saga
+
+### Exemple de body valide (commande simple)
+
+```json
+{
+  "magasinId": 1,
+  "items": [
+    { "produitId": 1, "quantite": 2 },
+    { "produitId": 2, "quantite": 1 }
+  ]
+}
+```
+
+### Exemple avec simulation d’échec de stock
+```json
+{
+  "magasinId": 1,
+  "items": [
+    { "produitId": 1, "quantite": 999 }
+  ],
+  "simulate": {
+    "stockInsufficient": true
+  }
+}
+```
+
+### Exemple avec simulation d’échec de vente
+
+```json
+{
+  "magasinId": 1,
+  "items": [
+    { "produitId": 1, "quantite": 1 }
+  ],
+  "simulate": {
+    "venteFail": true
+  }
+}
+```
+
+### Exemple avec simulation d’échec après création de la vente
+
+```json
+{
+  "magasinId": 1,
+  "items": [
+    { "produitId": 101, "quantite": 1 }
+  ],
+  "simulate": {
+    "failAfterVenteCreated": true
+  }
+}
+```
+
 ---
 
 ## Auteur

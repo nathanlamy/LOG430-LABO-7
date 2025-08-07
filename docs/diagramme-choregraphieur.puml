@@ -1,0 +1,66 @@
+@startuml
+title Saga synchrone – Saga Chorégraphiée (Commande)
+
+actor Client
+participant "Stock-Service" as Stock
+participant "Produit-Service" as Produits
+participant "Vente-Service" as Ventes
+participant "Commande-Service" as Commandes
+
+Client -> Commandes: POST /commandes\n{ magasinId, items, simulate? }
+activate Commandes
+Commandes -> Stock: GET /stock/{magasinId}
+alt Stock insuffisant
+  Commandes -> Client: 409 ANNULEE\nraison = STOCK_INSUFFISANT
+  deactivate Commandes
+else Stock OK
+  Commandes -> Produits: GET /produits
+  Commandes -> Commandes: Calcul des prixUnitaires + total
+  Commandes -> Commandes: Publier évènement "StockVerifie"
+
+  deactivate Commandes
+end
+
+... suite en mode événementiel ...
+
+note over Commandes, Ventes: Tous les services réagissent à des événements\npubliés sur Redis Streams
+
+Commandes -> Ventes: Consomme "StockVerifie"
+activate Ventes
+Ventes -> Ventes: Créer vente
+alt Erreur création vente
+  Ventes -> Stock: POST /stock/reapprovisionnement\n(par ligne)
+  Ventes -> Commandes: Publier "VenteErreur"
+  deactivate Ventes
+else Vente créée
+  Ventes -> Commandes: Publier "VenteCreee"
+  deactivate Ventes
+end
+
+Commandes -> Commandes: Consomme "VenteCreee"
+activate Commandes
+alt simulate.failAfterVenteCreated
+  Commandes -> Ventes: DELETE /ventes/{id}
+  Commandes -> Stock: POST /stock/reapprovisionnement
+  Commandes -> Client: 422 ANNULEE\nraison = ECHEC_APRES_VENTE
+  deactivate Commandes
+else Succès
+  Commandes -> Client: 201 CONFIRMEE\n{ commandeId, venteId, total }
+  deactivate Commandes
+end
+
+legend right
+Événements publiés (Redis Streams):
+- "StockVerifie" par Commandes
+- "VenteCreee" ou "VenteErreur" par Ventes
+
+Routes REST utilisées :
+- Stock : GET /stock/{magasinId}, POST /stock/reapprovisionnement
+- Produits : GET /produits
+- Ventes : POST /ventes, DELETE /ventes/{id}
+Notes :
+- Chaque service est autonome et réagit aux événements
+- Aucune orchestration centrale
+- Métriques exposées : saga_*, http_*, redis_stream_*
+endlegend
+@enduml
