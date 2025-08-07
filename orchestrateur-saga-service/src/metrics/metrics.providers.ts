@@ -51,4 +51,29 @@ export const MetricsProviders = [
     name: 'saga_in_flight',
     help: 'Sagas en cours (non terminées)',
   }),
+
+  makeCounterProvider({
+    name: 'events_published_total',
+    help: 'Nombre total d’événements publiés',
+    labelNames: ['event_type', 'stream'],
+  }),
+
+  makeHistogramProvider({
+    name: 'event_latency_seconds',
+    help: 'Temps entre l’émission et la consommation de l’événement',
+    labelNames: ['event_type', 'stream'],
+    buckets: [0.01, 0.1, 0.5, 1, 2, 3, 5],
+  }),
+
+  makeCounterProvider({
+    name: 'event_consumed_total',
+    help: 'Nombre total d’événements consommés',
+    labelNames: ['event_type', 'stream'],
+  }),
+
+  makeCounterProvider({
+    name: 'commande_events_emitted_total',
+    help: 'Nombre total d’événements commande émis',
+    labelNames: ['type'],
+  }),
 ];

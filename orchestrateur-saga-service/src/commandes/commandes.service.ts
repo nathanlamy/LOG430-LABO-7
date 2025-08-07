@@ -5,11 +5,17 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreateCommandeDto } from './dto/create-command.dto';
 import { MetricsService } from '../metrics/metrics.service';
 import { EventBusService } from 'src/event-bus.service';
+import { createClient } from 'redis';
+import { randomUUID } from 'crypto';
 
 const BASE = 'http://vente-service:3000'; // KrakenD
 const produitsAPI = `http://produit-service:3000/produits`;
 const ventesAPI   = `http://vente-service:3000/ventes`;
 const stockAPI    = `http://stock-service:3000/stock`;
+const REDIS_STREAM = 'commande-events';
+
+const redisClient = createClient({ url: 'redis://redis:6379' });
+redisClient.connect();
 
 enum EtatCommande {
   INITIEE = 'INITIEE',
@@ -23,12 +29,10 @@ let bearerToken = '';
 
 async function getBearerToken() {
   if (bearerToken) return bearerToken;
-
   const res = await axios.post(`${BASE}/auth/login`, {
     username: 'admin',
     password: 'admin',
   });
-
   bearerToken = `Bearer ${res.data.access_token}`;
   return bearerToken;
 }
@@ -63,6 +67,19 @@ export class CommandesService {
     });
   }
 
+  private async emitEvent(eventType: string, data: any) {
+    const timestamp = Date.now();
+    await redisClient.xAdd(REDIS_STREAM, '*', {
+      id: randomUUID(),
+      type: eventType,
+      emitted_at: timestamp.toString(),
+      payload: JSON.stringify(data),
+    });
+    this.metrics.eventEmitted(eventType);
+    this.metrics.recordEventLatency(eventType, REDIS_STREAM, timestamp);
+    this.metrics.countEvent(eventType, REDIS_STREAM);
+  }
+
   private async log(commandeId: string, step: string, outcome: string, details?: any) {
     await this.prisma.sagaEvent.create({
       data: { commandeId, step, outcome, details: details ? JSON.stringify(details) : undefined }
@@ -82,6 +99,7 @@ export class CommandesService {
         include: { items: true }
       });
       await this.log(commande.id, 'INIT', 'OK');
+      await this.emitEvent('commande.initiee', { commandeId: commande.id });
 
       const stock = await this.metrics.measureExternal('stock', 'check', () =>
         authorizedGet(`${stockAPI}/${dto.magasinId}`)
@@ -100,6 +118,7 @@ export class CommandesService {
       }
       this.metrics.step('STOCK_CHECK', 'ok');
       await this.updateEtat(commande.id, EtatCommande.STOCK_OK, 'STOCK_CHECK');
+      await this.emitEvent('commande.stock_ok', { commandeId: commande.id });
 
       const produits = await this.metrics.measureExternal('produits', 'list', () =>
         authorizedGet(produitsAPI)
@@ -148,6 +167,7 @@ export class CommandesService {
       });
       this.metrics.step('VENTE_CREATE', 'ok');
       await this.log(commande.id, 'VENTE_CREATE', 'OK', { venteId: vente.id });
+      await this.emitEvent('commande.vente_creee', { commandeId: commande.id, venteId: vente.id });
 
       if (dto.simulate?.failAfterVenteCreated) {
         await this.compenseVente(commande.id, vente.id, lignes);
@@ -163,6 +183,7 @@ export class CommandesService {
         data: { etat: EtatCommande.CONFIRMEE }
       });
       await this.log(commande.id, 'SAGA_END', 'OK');
+      await this.emitEvent('commande.confirmee', { commandeId: commande.id });
 
       this.metrics.endSagaSuccess(stop);
       return { commandeId: commande.id, etat: 'CONFIRMEE', venteId: vente.id, total };
@@ -218,6 +239,7 @@ export class CommandesService {
       data: { etat: EtatCommande.ANNULEE }
     });
     await this.log(commandeId, 'SAGA_END', 'KO', { reason: 'compensation' });
+    await this.emitEvent('commande.annulee', { commandeId });
   }
 
   private async updateEtat(id: string, etat: EtatCommande, step: string) {
@@ -228,5 +250,6 @@ export class CommandesService {
   private async fail(id: string, step: string, outcome: 'KO', details?: any) {
     await this.prisma.commande.update({ where: { id }, data: { etat: EtatCommande.ANNULEE } });
     await this.log(id, step, outcome, details);
+    await this.emitEvent('commande.annulee', { commandeId: id });
   }
 }

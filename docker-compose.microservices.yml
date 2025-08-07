@@ -198,6 +198,15 @@ services:
     networks:
       - magasin_net
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - magasin_net
+
+
 volumes:
   produit_data:
   stock_data:

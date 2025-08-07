@@ -18,6 +18,12 @@ export class MetricsService {
     // (optionnel) externes
     @InjectMetric('saga_external_call_duration_seconds')
     private extDur: Histogram,
+
+    @InjectMetric('events_published_total') private eventsPublished: Counter,
+    @InjectMetric('event_latency_seconds') private eventLatency: Histogram,
+
+    @InjectMetric('commande_events_emitted_total')
+    private eventCounter: Counter<string>,
   ) {}
 
   trackRequest(method: string, route: string, status_code: number, duration: number) {
@@ -42,6 +48,19 @@ export class MetricsService {
   }
   step(step: string, outcome: 'ok' | 'ko') {
     this.sagaStep.inc({ step, outcome });
+  }
+
+  countEvent(eventType: string, stream: string) {
+    this.eventsPublished.labels(eventType, stream).inc();
+  }
+
+  recordEventLatency(eventType: string, stream: string, emittedTimestamp: number) {
+    const latency = (Date.now() - emittedTimestamp) / 1000; // secondes
+    this.eventLatency.observe({ event_type: eventType, stream }, latency);
+  }
+
+  eventEmitted(eventType: string) {
+    this.eventCounter.inc({ type: eventType });
   }
 
   // ==== (optionnel) mesure d’un appel externe ====
