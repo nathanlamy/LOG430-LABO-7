@@ -1,0 +1,58 @@
+@startuml
+title UC_MAJProduit – PATCH /produits/:id
+
+actor "Gestionnaire maison mère" as User
+participant "KrakenD Gateway\n:8080" as Gateway
+participant "ProduitController" as Controller
+participant "JwtAuthGuard" as Guard
+participant "ValidationPipe" as Pipe
+participant "ProduitService" as Service
+participant "PrismaService" as Prisma
+
+== Requête ==
+User -> Gateway: PATCH /produits/{id}\nAuthorization: Bearer <JWT>\nBody: UpdateProduitDto
+Gateway -> Controller: /produits/{id} (dto, headers)
+
+== Authentification ==
+Controller -> Guard: canActivate(req)
+Guard -> Guard: vérifier/decoder JWT
+alt Token invalide/expiré
+  Guard --> Controller: throw 401
+  Controller --> Gateway: 401
+  Gateway --> User: 401 Unauthorized
+  return
+else OK
+  Guard --> Controller: allow
+end
+
+== Validation ==
+Controller -> Pipe: validate(dto, { whitelist:true, forbidNonWhitelisted:true })
+alt DTO invalide
+  Pipe --> Controller: throw 400 Bad Request
+  Controller --> Gateway: 400
+  Gateway --> User: 400 Bad Request
+  return
+else DTO valide
+  Pipe --> Controller: dto nettoyé
+end
+
+== Mise à jour ==
+Controller -> Service: updateProduit(id, dto)
+Service -> Prisma: produit.findUnique({ where: { id } })
+alt Produit introuvable
+  Service -> Service: throw NotFoundException
+  Service --> Controller: 404 Not Found
+  Controller --> Gateway: 404
+  Gateway --> User: 404 Produit introuvable
+  return
+else Produit trouvé
+  Service -> Prisma: produit.update({ where: { id }, data: dto })
+  Prisma --> Service: produitMaj
+end
+
+== Réponse ==
+Service --> Controller: produitMaj
+Controller --> Gateway: 200 OK + body
+Gateway --> User: 200 OK + body
+
+@enduml

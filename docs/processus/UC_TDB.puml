@@ -1,0 +1,54 @@
+@startuml
+title UC_Dashboard – GET /dashboard
+
+actor "Gestionnaire maison mère" as User
+participant "KrakenD Gateway\n:8080" as Gateway
+participant "DashboardController" as Controller
+participant "JwtAuthGuard" as Guard
+participant "DashboardService" as Service
+participant "PrismaService" as Prisma
+
+== Requête ==
+User -> Gateway: GET /dashboard\nAuthorization: Bearer <JWT>
+Gateway -> Controller: /dashboard (headers)
+
+== Authentification ==
+Controller -> Guard: canActivate(req)
+Guard -> Guard: vérifier/decoder JWT
+alt Token invalide/expiré
+  Guard --> Controller: throw 401
+  Controller --> Gateway: 401
+  Gateway --> User: 401 Unauthorized
+  return
+else OK
+  Guard --> Controller: allow
+end
+
+== Récupération des métriques (Promise.all) ==
+Controller -> Service: getDashboard()
+
+par Chiffre d'affaires par magasin
+  Service -> Prisma: vente.groupBy({ by:['magasinId'], _sum:{ total:true }, orderBy:{magasinId:'asc'} })
+  Prisma --> Service: chiffreAffaires[]
+par Ruptures (sous seuil)
+  Service -> Prisma: stock.findMany({ include:{ produit:true, magasin:true } })
+  Prisma --> Service: stocksAll1[]
+  Service -> Service: filtrer s.quantite < s.seuilCritique -> rupturesRaw[]
+par Surstock (au-dessus du seuil+100)
+  Service -> Prisma: stock.findMany({ include:{ produit:true, magasin:true } })
+  Prisma --> Service: stocksAll2[]
+  Service -> Service: filtrer s.quantite > s.seuilCritique + 100 -> surstock[]
+par Tendances hebdo
+  Service -> Prisma: $queryRawUnsafe(`EXTRACT(WEEK FROM date) AS semaine, SUM(total) ...`)
+  Prisma --> Service: tendances[]
+end
+
+== Assemblage ==
+Service -> Service: map(rupturesRaw) -> [{magasin, produit, quantite, seuilCritique}]
+Service --> Controller: { chiffreAffaires, ruptures, surstock, tendances }
+
+== Réponse ==
+Controller --> Gateway: 200 OK + body
+Gateway --> User: 200 OK + body
+
+@enduml

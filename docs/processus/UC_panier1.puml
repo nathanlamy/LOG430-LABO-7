@@ -1,0 +1,34 @@
+@startuml
+title UC_AfficherPanier – GET /panier
+
+actor "Client" as User
+participant "KrakenD Gateway\n:8080" as Gateway
+participant "PanierController" as Controller
+participant "JwtAuthGuard" as Guard
+participant "PanierService" as Service
+
+== Requête ==
+User -> Gateway: GET /panier\nAuthorization: Bearer <JWT>
+Gateway -> Controller: /panier (headers)
+
+== Auth ==
+Controller -> Guard: canActivate(req)
+Guard -> Guard: vérifier/decoder JWT
+alt Token invalide/expiré
+  Guard --> Controller: throw 401
+  Controller --> Gateway: 401
+  Gateway --> User: 401 Unauthorized
+  return
+else OK
+  Guard --> Controller: allow
+end
+
+== Traitement ==
+Controller -> Service: getPanier()
+Service --> Controller: panier[]
+
+== Réponse ==
+Controller --> Gateway: 200 OK + body
+Gateway --> User: 200 OK + body
+
+@enduml

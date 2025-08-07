@@ -1,0 +1,35 @@
+@startuml
+title UC_AjouterAuPanier – POST /panier
+
+actor "Client" as User
+participant "KrakenD Gateway\n:8080" as Gateway
+participant "PanierController" as Controller
+participant "JwtAuthGuard" as Guard
+participant "PanierService" as Service
+
+== Requête ==
+User -> Gateway: POST /panier\nAuthorization: Bearer <JWT>\nBody: AjouterPanierDto
+Gateway -> Controller: /panier (dto, headers)
+
+== Auth ==
+Controller -> Guard: canActivate(req)
+Guard -> Guard: vérifier/decoder JWT
+alt Token invalide/expiré
+  Guard --> Controller: throw 401
+  Controller --> Gateway: 401
+  Gateway --> User: 401 Unauthorized
+  return
+else OK
+  Guard --> Controller: allow
+end
+
+== Traitement ==
+Controller -> Service: ajouterAuPanier(dto)
+Service -> Service: panier.push(item)
+Service --> Controller: { message:"Ajouté au panier", item }
+
+== Réponse ==
+Controller --> Gateway: 201 Created + body
+Gateway --> User: 201 Created + body
+
+@enduml

@@ -1,0 +1,66 @@
+@startuml
+title UC_PasserCommande – POST /commande
+
+actor "Client" as User
+participant "KrakenD Gateway\n:8080" as Gateway
+participant "CommandeController" as Controller
+participant "JwtAuthGuard" as Guard
+participant "CommandeService" as Service
+participant "PanierService" as Panier
+participant "HttpService\n(@nestjs/axios)" as Http
+
+== Requête ==
+User -> Gateway: POST /commande\nAuthorization: Bearer <JWT>
+Gateway -> Controller: /commande (headers)
+
+== Auth ==
+Controller -> Guard: canActivate(req)
+Guard -> Guard: vérifier/decoder JWT
+alt Token invalide/expiré
+  Guard --> Controller: throw 401
+  Controller --> Gateway: 401
+  Gateway --> User: 401 Unauthorized
+  return
+else OK
+  Guard --> Controller: allow
+end
+
+== Exécution ==
+Controller -> Service: passerCommande()
+
+Service -> Panier: getPanier()
+Panier --> Service: panier[]
+
+loop pour chaque item du panier
+  Service -> Http: GET ${STOCK_SERVICE_URL}/stock/{item.produitId}
+  Http --> Service: res(data.quantite, ...)
+  alt Stock insuffisant OU produit introuvable
+    Service -> Service: throw Error("Stock insuffisant ou produit introuvable")
+    Service --> Controller: Exception
+    Controller --> Gateway: 500 Internal Server Error
+    Gateway --> User: 500 (message d'erreur)
+    return
+  end
+end
+
+== Création de la vente ==
+Service -> Http: POST ${VENTE_SERVICE_URL}/vente\nBody: { items: panier }
+alt Échec création vente
+  Http --> Service: erreur
+  Service --> Controller: Exception
+  Controller --> Gateway: 502/500 (selon handler)
+  Gateway --> User: Erreur création vente
+  return
+else Vente créée
+  Http --> Service: response.data (commande)
+end
+
+== Vidage du panier et réponse ==
+Service -> Panier: viderPanier()
+Panier --> Service: OK
+
+Service --> Controller: { message: "Commande passée", commande: response.data }
+Controller --> Gateway: 201 Created + body
+Gateway --> User: 201 Created + body
+
+@enduml

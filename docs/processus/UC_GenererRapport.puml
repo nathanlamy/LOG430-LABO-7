@@ -1,0 +1,58 @@
+@startuml
+title UC_GenererRapportConsolide – GET /ventes/rapport-consolide
+
+actor "Gestionnaire maison mère" as User
+participant "KrakenD Gateway\n:8080" as Gateway
+participant "VenteController" as Controller
+participant "JwtAuthGuard" as Guard
+participant "VenteService" as Service
+participant "PrismaService" as Prisma
+
+== Requête ==
+User -> Gateway: GET /ventes/rapport-consolide\nAuthorization: Bearer <JWT>
+Gateway -> Controller: /ventes/rapport-consolide (headers)
+
+== Authentification ==
+Controller -> Guard: canActivate(req)
+Guard -> Guard: vérifier/decoder JWT
+alt Token invalide/expiré
+  Guard --> Controller: throw 401 Unauthorized
+  Controller --> Gateway: 401
+  Gateway --> User: 401 Unauthorized
+  return
+else OK
+  Guard --> Controller: allow
+end
+
+== Génération du rapport ==
+Controller -> Service: genererRapportConsolide()
+
+group Agrégations
+  Service -> Prisma: vente.groupBy({ by: ['magasinId'], _sum: { total: true }})
+  Service <- Prisma: ventesParMagasin[]
+
+  Service -> Prisma: ligneVente.groupBy({ by: ['produitId'], _sum: { quantite: true }, orderBy: {_sum:{quantite:'desc'}}})
+  Service <- Prisma: produitsLesPlusVendus[]
+end
+
+group Résolution des libellés
+  loop pour chaque v in ventesParMagasin
+    Service -> Prisma: magasin.findUnique({ id: v.magasinId })
+    Service <- Prisma: magasin? (nom)
+  end
+
+  loop pour chaque p in produitsLesPlusVendus
+    Service -> Prisma: produit.findUnique({ id: p.produitId })
+    Service <- Prisma: produit? (nom)
+  end
+end
+
+== Assemblage de la réponse ==
+Service -> Service: construire {\n chiffreAffaires:[{magasin, total}],\n produitsLesPlusVendus:[{produit, quantite}] \n}
+Service --> Controller: objet rapport (JSON)
+
+== Réponse ==
+Controller --> Gateway: 200 OK + body
+Gateway --> User: 200 OK + body
+
+@enduml

@@ -1,0 +1,55 @@
+@startuml
+title UC_Reapprovisionner – POST /stock/reapprovisionnement
+
+actor "Responsable logistique" as User
+participant "KrakenD Gateway\n:8080" as Gateway
+participant "StockController" as Controller
+participant "JwtAuthGuard" as Guard
+participant "StockService" as Service
+participant "PrismaService" as Prisma
+
+== Requête ==
+User -> Gateway: POST /stock/reapprovisionnement\nAuthorization: Bearer <JWT>\nBody: { magasinId, produitId, quantite }
+Gateway -> Controller: /stock/reapprovisionnement (dto, headers)
+
+== Auth ==
+Controller -> Guard: canActivate(req)
+Guard -> Guard: vérifier/decoder JWT
+alt Token invalide/expiré
+  Guard --> Controller: throw 401
+  Controller --> Gateway: 401
+  Gateway --> User: 401 Unauthorized
+  return
+else OK
+  Guard --> Controller: allow
+end
+
+== Pré-vérifications ==
+Controller -> Service: reapprovisionner(dto)
+Service -> Prisma: stockCentral.findFirst({ where: { produitId } })
+Prisma --> Service: stockCentral?
+
+alt Stock central insuffisant ou absent
+  Service -> Service: throw BadRequestException("Stock central insuffisant")
+  Service --> Controller: 400 Bad Request
+  Controller --> Gateway: 400
+  Gateway --> User: 400 Stock central insuffisant
+  return
+end
+
+== Transaction ==
+group Prisma $transaction
+  Service -> Prisma: stockCentral.updateMany({ produitId, quantite: decrement(quantite) })
+  Service -> Prisma: stock.findFirst({ where: { magasinId, produitId } })
+  alt Stock magasin existe
+    Service -> Prisma: stock.update({ id, quantite: increment(quantite) })
+  else Stock magasin absent
+    Service -> Prisma: stock.create({ magasinId, produitId, quantite, seuilCritique: 10 })
+  end
+end
+
+== Réponse ==
+Service --> Controller: { message: "Réapprovisionnement effectué avec succès" }
+Controller --> Gateway: 201 Created + message
+Gateway --> User: 201 Created + message
+@enduml

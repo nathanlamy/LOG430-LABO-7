@@ -1,0 +1,49 @@
+@startuml
+title UC_RechercherProduit – GET /produits?id=&nom=&categorie=
+
+actor "Employé de magasin" as User
+participant "KrakenD Gateway\n:8080" as Gateway
+participant "ProduitController" as Controller
+participant "JwtAuthGuard" as Guard
+participant "ProduitService" as Service
+participant "PrismaService" as Prisma
+
+== Requête ==
+User -> Gateway: GET /produits?id=&nom=&categorie=\nAuthorization: Bearer <JWT>
+Gateway -> Controller: /produits (query, headers)
+
+== Authentification ==
+Controller -> Guard: canActivate(req)
+Guard -> Guard: vérifier/decoder JWT
+alt Token invalide/expiré
+  Guard --> Controller: throw 401
+  Controller --> Gateway: 401
+  Gateway --> User: 401 Unauthorized
+  return
+else OK
+  Guard --> Controller: allow
+end
+
+== Traitement ==
+Controller -> Service: chercherProduits({ id?, nom?, categorie? })
+
+alt id fourni
+  Service -> Prisma: produit.findMany({ where: { id } })
+  Prisma --> Service: produits[]
+else nom fourni
+  Service -> Prisma: produit.findMany({ where: { nom: { contains: nom, mode: 'insensitive' } } })
+  Prisma --> Service: produits[]
+else categorie fournie
+  Service -> Prisma: produit.findMany({ where: { categorie: { contains: categorie, mode: 'insensitive' } } })
+  Prisma --> Service: produits[]
+else aucun filtre
+  Service -> Prisma: produit.findMany()
+  Prisma --> Service: produits[]
+end
+
+== Réponse ==
+Service --> Controller: produits[]
+Controller --> Gateway: 200 OK + body
+Gateway --> User: 200 OK + body
+
+@enduml
